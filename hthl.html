@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ayush Savner - Resume</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Calibri", Arial, sans-serif;
+        background-color: #f5f5f5;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .download-section {
+        background-color: #e3f2fd;
+        padding: 20px;
+        border-radius: 8px;
+        border: 2px solid #2196f3;
+        margin-bottom: 20px;
+      }
+
+      .download-btn {
+        background-color: #2196f3;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.3s;
+      }
+
+      .download-btn:hover {
+        background-color: #1976d2;
+      }
+
+      .download-btn svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .info-text {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #555;
+      }
+
+      .resume {
+        background-color: white;
+        padding: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .header {
+        margin-bottom: 24px;
+      }
+
+      .header h1 {
+        font-size: 28px;
+        font-weight: bold;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+      }
+
+      .contact-info {
+        font-size: 13px;
+        color: #333;
+        line-height: 1.6;
+      }
+
+      .contact-info a {
+        color: #2196f3;
+        text-decoration: none;
+      }
+
+      .contact-info a:hover {
+        text-decoration: underline;
+      }
+
+      .divider {
+        border-bottom: 2px solid #1a1a1a;
+        margin: 12px 0 24px 0;
+      }
+
+      .section {
+        margin-bottom: 20px;
+      }
+
+      .section-title {
+        font-size: 15px;
+        font-weight: bold;
+        color: #1a1a1a;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+
+      .section-divider {
+        border-bottom: 1px solid #666;
+        margin-bottom: 12px;
+      }
+
+      .section-content {
+        font-size: 13px;
+        color: #333;
+        line-height: 1.5;
+      }
+
+      .section-content p {
+        margin-bottom: 8px;
+      }
+
+      .job-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .job-title {
+        font-weight: bold;
+        font-size: 13px;
+      }
+
+      .job-company {
+        font-size: 13px;
+        color: #555;
+      }
+
+      .job-duration {
+        font-size: 13px;
+        color: #555;
+        text-align: right;
+      }
+
+      .subsection {
+        margin-bottom: 12px;
+      }
+
+      .subsection-title {
+        font-weight: bold;
+        margin-bottom: 4px;
+      }
+
+      .bullet {
+        padding-left: 20px;
+        margin-bottom: 4px;
+      }
+
+      .project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 4px;
+      }
+
+      .project-title {
+        font-weight: bold;
+        font-size: 13px;
+      }
+
+      .github-link {
+        font-size: 12px;
+        color: #2196f3;
+        text-decoration: none;
+      }
+
+      .github-link:hover {
+        text-decoration: underline;
+      }
+
+      .skills-list p {
+        margin-bottom: 6px;
+      }
+
+      .skills-list strong {
+        font-weight: bold;
+      }
+
+      @media print {
+        body {
+          background-color: white;
+          padding: 0;
+        }
+        .download-section {
+          display: none;
+        }
+        .resume {
+          box-shadow: none;
+          padding: 0.5in;
+        }
+      }
+
+      /* When generating PDF we remove the page-level body padding
+         and adjust the resume padding to control outer whitespace. */
+      body.pdf-render {
+        padding: 0 !important;
+        background-color: white !important;
+      }
+
+      /* During PDF render, reduce the resume internal padding slightly so
+         the visible content fits better on the page with smaller margins. */
+      body.pdf-render .resume {
+        /* reduced from 0.4in to 0.2in to tighten visible PDF edges */
+        padding: 0.2in !important;
+        box-shadow: none !important;
+      }
+
+      /* Avoid breaking sections across pages where possible to prevent
+         text blocks from being split in a way that causes overlap. */
+      /* .section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      } */
+    </style>
+  </head>
+    <!-- html2pdf: renders the DOM to PDF while preserving CSS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <script>
+      // Generate a PDF from the #resume element preserving CSS styles.
+      // html2pdf uses html2canvas (renders the DOM to canvas) which preserves styling well.
+      // If you need clickable links in the PDF, see notes below and we can try a different approach.
+      function downloadPDF() {
+        const element = document.getElementById('resume');
+        if (!element) {
+          alert('Resume content not found');
+          return;
+        }
+
+        const opt = {
+          // Use an array for margins: [top, right, bottom, left]
+          // Give a larger top margin so each new page has space at the top
+          // while keeping side/bottom margins small to minimize white edges.
+          // Units are in inches (jsPDF/ html2pdf interprets numbers as inches when jsPDF.unit='in').
+          margin: [0.18, 0.08, 0.08, 0.08],
+          filename: 'Ayush_Savner_Resume.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
+          jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['css', 'legacy'] }
+        };
+
+        // Show a simple temporary indicator while rendering (optional)
+        const btn = document.querySelector('.download-btn');
+        if (btn) {
+          btn.disabled = true;
+          btn.setAttribute('data-old-aria', btn.getAttribute('aria-disabled'));
+        }
+
+        // Add temporary class to body to remove padding while rendering
+        document.body.classList.add('pdf-render');
+
+        html2pdf().set(opt).from(element).save()
+          .then(() => {
+            // success
+          })
+          .catch(err => {
+            console.error('Error generating PDF:', err);
+            alert('Failed to generate PDF. See console for details.');
+          })
+          .finally(() => {
+            // restore UI and remove temporary class
+            if (btn) {
+              btn.disabled = false;
+              const old = btn.getAttribute('data-old-aria');
+              if (old !== null) btn.setAttribute('aria-disabled', old);
+              btn.removeAttribute('data-old-aria');
+            }
+            document.body.classList.remove('pdf-render');
+          });
+      }
+    </script>
+
+      <div class="download-section">
+        <div class="download-actions">
+          <button class="download-btn" onclick="downloadPDF()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download Resume as PDF
+          </button>
+
+          <a class="download-btn" style="text-decoration: none;" href="mailto:ayushsavner15@gmail.com?subject=Opportunity&body=Hi%20Ayush%2C%0A%0AI%20found%20your%20resume%20and%20would%20like%20to%20connect." title="Hire Me">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            Hire Me
+          </a>
+
+          <a class="download-btn" style="text-decoration: none;" href="https://wa.me/917987783840?text=Hi%20Ayush%2C%20I%20saw%20your%20resume%20and%20would%20like%20to%20connect." target="_blank" rel="noopener noreferrer" title="Reach to me on WhatsApp">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+              <path d="M21 15a4 4 0 01-3.9 2 9 9 0 01-8.1-8.1A4 4 0 019 3a4 4 0 014 4c0 .9-.3 1.7-.8 2.4l.6.6c1.4-1 3-1.6 4.8-1.6 1 0 1.9.2 2.8.6z" />
+              <path d="M17 11l-3 3" />
+            </svg>
+            Reach to me
+          </a>
+        </div>
+
+        <p class="info-text">
+         
+        </p>
+      </div>
+
+      <!-- Resume Content -->
+      <div class="resume" id="resume">
+        <!-- Header -->
+        <div class="header">
+          <h1>AYUSH SAVNER</h1>
+          <div class="contact-info">
+            <p>
+              Indore, India | +91 7987783840 | ayushsavner15@gmail.com |
+
+              <a
+                href="https://www.linkedin.com/in/ayush-s-6b8985224/"
+                target="_blank"
+                >LinkedIn</a
+              >
+              |
+              <a href="https://github.com/Ayushsav" target="_blank">GitHub</a> |
+              <a href="https://www.ayushsavner.me/" target="_blank">Website</a>
+            </p>
+          </div>
+          <div class="divider"></div>
+        </div>
+
+        <!-- Professional Summary -->
+        <div class="section">
+          <h2 class="section-title">Professional Summary</h2>
+          <div class="section-divider"></div>
+          <div class="section-content">
+            <p>
+              Full Stack Developer with 2+ years of experience in building
+              scalable enterprise applications using MERN stack, Django, and
+              cloud technologies. Proven expertise in ERP solutions, third-party
+              API integrations (NetSuite, Salesforce, Zoho, WhatsApp), and AWS
+              deployment. Specialized in warehouse management systems, custom
+              ERP development, and AI-powered applications with strong focus on
+              backend architecture and cloud infrastructure.
+            </p>
+          </div>
+        </div>
+
+        <!-- Technical Skills -->
+        <div class="section">
+          <h2 class="section-title">Technical Skills</h2>
+          <div class="section-divider"></div>
+          <div class="section-content skills-list">
+            <p>
+              <strong>Programming Languages:</strong> Python, JavaScript,
+              TypeScript, C++
+            </p>
+            <p>
+              <strong>Frontend Technologies:</strong> React.js, React Native,
+              Next.js, Redux, Redux Thunk, HTML5, CSS3
+            </p>
+            <p>
+              <strong>Backend Technologies:</strong> Node.js, Express.js,
+              Django, Django REST Framework, Flask, FastAPI
+            </p>
+            <p>
+              <strong>Database Technologies:</strong> MySQL, MongoDB,
+              PostgreSQL, Sequelize ORM
+            </p>
+            <p>
+              <strong>Cloud & DevOps:</strong> AWS (EC2, S3, EBS, RDS, Lambda),
+              Docker, Git, GitHub, CI/CD Pipelines
+            </p>
+            <p>
+              <strong>Developer Tools:</strong> Postman, VS Code, Git, Docker,
+              Linux
+            </p>
+            <p>
+              <strong>Deployment Platforms:</strong> AWS, cPanel, Hostinger,
+              PythonAnywhere, Vercel, Render
+            </p>
+            <p>
+              <strong>API Integrations:</strong> NetSuite, Salesforce, Zoho,
+              WhatsApp Business API, RESTful APIs
+            </p>
+          </div>
+        </div>
+
+        <!-- Work Experience -->
+        <div class="section">
+          <h2 class="section-title">Work Experience</h2>
+          <div class="section-divider"></div>
+          <div class="section-content">
+            <div class="job-header">
+              <div>
+                <div class="job-title">Full Stack Developer</div>
+                <div class="job-company">Ignitive Software Labs Pvt. Ltd.</div>
+              </div>
+              <div class="job-duration">
+                <div>Jan 2024 – Present</div>
+                <div>Indore, India</div>
+              </div>
+            </div>
+
+            <div class="subsection">
+              <div class="subsection-title">Enterprise ERP Solutions:</div>
+              <div class="bullet">
+                • Developed and maintained multiple custom ERP systems including
+                VWMS (Vendor Warehouse Management System) for managing vendor
+                import operations, warehouse inventory distribution, consumption
+                tracking, and automated vendor billing
+              </div>
+              <div class="bullet">
+                • Built WMS (Warehouse Management System) with comprehensive
+                inventory tracking and robust reporting capabilities for
+                real-time inventory insights
+              </div>
+              <div class="bullet">
+                • Contributed to Jamisu ERP development for streamlined order
+                and item management workflows
+              </div>
+              <div class="bullet">
+                • Designed efficient database models and optimized complex
+                queries for enhanced system performance
+              </div>
+            </div>
+
+            <div class="subsection">
+              <div class="subsection-title">Third-Party Integrations:</div>
+              <div class="bullet">
+                • Successfully integrated NetSuite with custom ERP solutions
+                enabling seamless data synchronization and automated workflows
+              </div>
+              <div class="bullet">
+                • Implemented WhatsApp Business API integration in HourFlux
+                product for automated communication and marketing workflows
+              </div>
+              <div class="bullet">
+                • Architected bidirectional Salesforce to Zoho integration
+                ensuring real-time data consistency and synchronization across
+                platforms
+              </div>
+              <div class="bullet">
+                • Developed robust API middleware for handling data
+                transformation and error handling
+              </div>
+            </div>
+
+            <div class="subsection">
+              <div class="subsection-title">Full Stack Development:</div>
+              <div class="bullet">
+                • Built TimeCamp project with comprehensive timesheet
+                management, time tracking, project management, and reporting
+                features using Django and React
+              </div>
+              <div class="bullet">
+                • Developed Candidate Management System with WhatsApp
+                integration for automated marketing and streamlined recruitment
+                workflows
+              </div>
+              <div class="bullet">
+                • Created React Native mobile application with NetSuite
+                integration for enhanced mobile data synchronization
+              </div>
+              <div class="bullet">
+                • Rebuilt Ignitive Software Labs website improving user
+                experience and performance through backend optimization
+              </div>
+            </div>
+
+            <div class="subsection">
+              <div class="subsection-title">Cloud Infrastructure & DevOps:</div>
+              <div class="bullet">
+                • Managed AWS deployments utilizing EC2, S3, EBS, RDS, and
+                Lambda services for scalable application hosting
+              </div>
+              <div class="bullet">
+                • Established and maintained CI/CD pipelines for automated
+                testing, building, and deployment processes
+              </div>
+              <div class="bullet">
+                • Optimized cloud infrastructure for cost efficiency, security,
+                and high availability
+              </div>
+            </div>
+
+            <div class="subsection">
+              <div class="subsection-title">Technical Leadership:</div>
+              <div class="bullet">
+                • Collaborated with Agile teams to deliver scalable,
+                production-ready solutions following best practices
+              </div>
+              <div class="bullet">
+                • Utilized MERN stack (MongoDB, Express.js, React, Node.js)
+                alongside Python and Django for diverse project requirements
+              </div>
+              <div class="bullet">
+                • Ensured application reliability, security, and user
+                satisfaction across all projects
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projects -->
+        <div class="section">
+          <h2 class="section-title">Projects</h2>
+          <div class="section-divider"></div>
+          <div class="section-content">
+            <div class="subsection">
+              <div class="project-header">
+                <div class="project-title">
+                  HEALTHSYNC - AI-Powered Diet Recommendation System
+                </div>
+                <a
+                  href="https://github.com/Ayushsav"
+                  target="_blank"
+                  class="github-link"
+                  >GitHub</a
+                >
+              </div>
+              <div class="bullet">
+                • Designed and implemented an adaptive diet recommendation
+                application generating personalized meal plans based on user
+                preferences, health goals, and dietary restrictions
+              </div>
+              <div class="bullet">
+                • Utilized K-Nearest Neighbors algorithm for intelligent diet
+                plan generation and machine learning for continuous adaptation
+                to user progress
+              </div>
+              <div class="bullet">
+                <strong>Technologies:</strong> Python, Django, Django REST
+                Framework, Machine Learning, Docker, PostgreSQL, Git
+              </div>
+            </div>
+
+            <div class="subsection">
+              <div class="project-header">
+                <div class="project-title">
+                  CODESYNC - AI Code Tracking Extension for Cursor AI
+                </div>
+                <a
+                  href="https://github.com/Ayushsav"
+                  target="_blank"
+                  class="github-link"
+                  >GitHub</a
+                >
+              </div>
+              <div class="bullet">
+                • Created a Cursor AI extension enabling prompt tracking and
+                code response mapping, facilitating team collaboration and code
+                comprehension
+              </div>
+              <div class="bullet">
+                • Implemented synchronization between AI-generated prompts and
+                corresponding code outputs for enhanced developer productivity
+              </div>
+              <div class="bullet">
+                <strong>Technologies:</strong> JavaScript, TypeScript, VS Code
+                Extension API, Node.js
+              </div>
+            </div>
+
+            <div class="subsection">
+              <div class="project-header">
+                <div class="project-title">
+                  Milkman Delivery - Customer & Vendor Management App
+                </div>
+                <a
+                  href="https://github.com/Ayushsav"
+                  target="_blank"
+                  class="github-link"
+                  >GitHub</a
+                >
+              </div>
+              <div class="bullet">
+                • Developed a full-stack delivery application using React Native
+                for mobile frontend, Django for backend API, and Node.js for
+                real-time features
+              </div>
+              <div class="bullet">
+                • Enabled customers to place orders and vendors to manage
+                deliveries with real-time tracking, notifications, and route
+                optimization
+              </div>
+              <div class="bullet">
+                <strong>Technologies:</strong> React Native, Django, Node.js,
+                Express.js, MongoDB, Redux, Real-time APIs
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Education -->
+        <div class="section">
+          <h2 class="section-title">Education</h2>
+          <div class="section-divider"></div>
+          <div class="section-content">
+            <div class="job-header">
+              <div>
+                <div class="job-title">
+                  Bachelor of Computer Science and Engineering
+                </div>
+                <div class="job-company">
+                  Rajiv Gandhi Proudyogiki Vishwavidyalaya
+                </div>
+                <div style="margin-top: 6px">
+                  <strong>Relevant Coursework:</strong> Data Structures and
+                  Algorithms, Database Management Systems, Operating Systems,
+                  Software Engineering, Artificial Intelligence, Machine
+                  Learning, Computer Networks
+                </div>
+              </div>
+              <div class="job-duration">
+                <div>June 2025</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Certifications -->
+        <div class="section">
+          <h2 class="section-title">Certifications</h2>
+          <div class="section-divider"></div>
+          <div class="section-content">
+            <div class="bullet">
+              •
+              <a
+                href="https://www.credly.com/badges/ce238098-bc8e-4c10-8a47-34fc9fecd63d/print"
+                target="_blank"
+                >AWS Certified Cloud Practitioner</a
+              >
+            </div>
+            <div class="bullet">
+              •
+              <a
+                href="https://www.coursera.org/account/accomplishments/verify/JTQY6TNTWAT5"
+                target="_blank"
+                >Web Application Technologies and Django - Coursera</a
+              >
+            </div>
+            <div class="bullet">
+              •
+              <a
+                href="https://www.coursera.org/account/accomplishments/verify/SGKYHB9HUQG5"
+                target="_blank"
+                >Building Web Applications in Django REST Framework -
+                Coursera</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="section">
+          <h2 class="section-title">Additional Information</h2>
+          <div class="section-divider"></div>
+          <div class="section-content">
+            <p>
+              <strong>Areas of Interest:</strong> Full Stack Development,
+              Backend Architecture, Cloud Computing, ERP Systems
+            </p>
+            <p><strong>Languages:</strong> English (Fluent), Hindi (Native)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
