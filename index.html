@@ -26,7 +26,6 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Person","name":"Ayush Savner","url":"https://ayushsavner.me/","sameAs":["https://www.linkedin.com/in/ayush-s-6b8985224/","https://github.com/Ayushsav"],"jobTitle":"Full Stack & AI Engineer","description":"Full Stack and AI Engineer specializing in RAG, agentic AI, automation, backend systems and enterprise integrations."}
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:"Calibri",Arial,sans-serif;background:#f5f5f5;padding:20px}
@@ -59,28 +58,17 @@ body{font-family:"Calibri",Arial,sans-serif;background:#f5f5f5;padding:20px}
 .project-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:4px}
 .github-link{font-size:12px}
 .education-section{break-before:page;page-break-before:always;break-inside:avoid;page-break-inside:avoid}
-@media print{body{background:#fff;padding:0}.download-section{display:none}.resume{box-shadow:none;padding:.5in}}
-body.pdf-render{padding:0!important;background:#fff!important}
-body.pdf-render .resume{padding:.2in!important;box-shadow:none!important}
+@page{size:A4;margin:.18in .08in .08in}
+@media print{
+  body{background:#fff;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .container{max-width:none;width:100%}
+  .download-section{display:none}
+  .resume{box-shadow:none;padding:.2in}
+}
 </style>
 <script>
 function downloadPDF() {
-  const element = document.getElementById('resume');
-  if (!element) { alert('Resume content not found'); return; }
-  const opt = {
-    margin: [0.18, 0.08, 0.08, 0.08],
-    filename: 'Ayush_Savner_Resume.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-    pagebreak: { mode: ['css', 'legacy'] }
-  };
-  const btn = document.querySelector('.download-btn');
-  if (btn) btn.disabled = true;
-  document.body.classList.add('pdf-render');
-  html2pdf().set(opt).from(element).save()
-    .catch(err => { console.error('Error generating PDF:', err); alert('Failed to generate PDF. See console for details.'); })
-    .finally(() => { if (btn) btn.disabled = false; document.body.classList.remove('pdf-render'); });
+  window.print();
 }
 </script>
 </head>
